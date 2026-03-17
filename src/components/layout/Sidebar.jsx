@@ -20,10 +20,10 @@ export default function Sidebar() {
   const { activeModule, setActiveModule } = useUIStore();
 
   return (
-    <aside className="w-full lg:w-[250px] min-h-screen border-r border-dinamita-line bg-gradient-to-b from-[#0d0f18] via-[#0b0d15] to-[#090b11]">
+    <aside className="w-full lg:w-[250px] min-h-screen border-r" style={{ borderColor: "var(--border-color)", background: "linear-gradient(to bottom, var(--menu-bg), var(--menu-bg), #090b11)" }}>
       <div className="px-6 py-8 border-b border-dinamita-line">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-dinamita-red/90 flex items-center justify-center font-black text-lg metric-glow">
+          <div className="h-12 w-12 rounded-2xl flex items-center justify-center font-black text-lg metric-glow" style={{ background: "var(--accent-color)" }}>
             DG
           </div>
           <div>
@@ -48,7 +48,7 @@ export default function Sidebar() {
               className={[
                 "w-full text-left rounded-2xl px-4 py-3 transition border font-medium",
                 active
-                  ? "bg-dinamita-red text-white border-dinamita-red shadow-[0_10px_30px_rgba(207,17,36,.18)]"
+                  ? "text-white shadow-[0_10px_30px_rgba(207,17,36,.18)]"
                   : "bg-transparent text-dinamita-text border-transparent hover:bg-dinamita-panel2 hover:border-dinamita-line",
               ].join(" ")}
             >

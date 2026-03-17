@@ -26,6 +26,7 @@ export function buildTicketHtml(ticket) {
     .join("");
 
   const cfg = useConfigStore.getState().config;
+  const socials = [cfg?.facebook && `Facebook: ${cfg.facebook}`, cfg?.instagram && `Instagram: ${cfg.instagram}`, cfg?.whatsapp && `WhatsApp: ${cfg.whatsapp}`].filter(Boolean).join(" · ");
   return `<!doctype html>
 <html lang="es">
 <head>
@@ -51,6 +52,9 @@ export function buildTicketHtml(ticket) {
   <div class="ticket">
     <div class="center">
       <div class="title">${cfg?.businessName || "DINÁMITA GYM"}</div>
+      ${cfg?.address ? `<div class="muted">${cfg.address}</div>` : ""}
+      ${cfg?.phone ? `<div class="muted">${cfg.phone}</div>` : ""}
+      ${cfg?.email ? `<div class="muted">${cfg.email}</div>` : ""}
       <div class="muted">Ticket ${ticket?.type || ""}</div>
     </div>
 
@@ -74,7 +78,7 @@ ${ticket?.membershipEnd ? `<div class="row"><span>Fin</span><span>${ticket.membe
     <div class="row total-line"><span>Total</span><span>${money(ticket?.total || 0)}</span></div>
 
     <div class="footer">
-      ${cfg?.ticketMessage || "Gracias por tu compra en Dinamita Gym 💥"}
+      ${cfg?.ticketMessage || "Gracias por tu compra en Dinamita Gym 💥"} ${socials ? `<br>${socials}` : ""}
     </div>
   </div>
 </body>

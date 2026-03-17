@@ -1,8 +1,15 @@
-# Dinamita POS Pro v33
+# Dinamita POS Pro v34
 
-## Acceso mejorado
-- super buscador por nombre o id único
-- búsqueda por coincidencia parcial
-- sugerencias visuales con foto
-- selección rápida de cliente
-- estructura lista para lector de código USB HID
+## Configuración completa
+- datos generales del negocio
+- dirección, teléfono, correo
+- redes sociales
+- configuración de colores:
+  - menú
+  - fondo
+  - paneles
+  - botones
+  - acento
+  - texto
+- los datos generales ya se usan en el ticket
+- los colores ya sí impactan la app por variables CSS

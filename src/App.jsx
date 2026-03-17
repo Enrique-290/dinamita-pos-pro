@@ -15,6 +15,7 @@ import Configuracion from "./modules/configuracion/Configuracion";
 import Bodega from "./modules/bodega/Bodega";
 import Acceso from "./modules/acceso/Acceso";
 import PersistenceGate from "./components/system/PersistenceGate";
+import ThemeBridge from "./components/system/ThemeBridge";
 
 const modules = {
   dashboard: Dashboard,
@@ -39,6 +40,7 @@ export default function App() {
   return (
     <>
       <PersistenceGate />
+      <ThemeBridge />
       <div className="min-h-screen bg-dinamita-bg text-dinamita-text lg:grid lg:grid-cols-[18rem_1fr]">
       <Sidebar />
       <main className="min-w-0">

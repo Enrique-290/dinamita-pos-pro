@@ -1,12 +1,35 @@
 import { create } from "zustand";
 
-const defaultConfig = {
+const defaultTheme = {
+  menuBg: "#0d0f18",
+  appBg: "#090a0f",
+  panelBg: "#121521",
+  panelBg2: "#171b2a",
+  borderColor: "#2a3040",
+  accentColor: "#cf1124",
+  buttonBg: "#cf1124",
+  buttonText: "#ffffff",
+  textColor: "#f5f7fb",
+  mutedColor: "#9aa4b2",
+};
+
+const defaultBusiness = {
   businessName: "DINÁMITA GYM",
   appName: "Dinamita POS Pro",
   ownerName: "Admin",
   ticketMessage: "Gracias por tu compra en Dinamita Gym 💥",
-  accent: "red",
   currency: "MXN",
+  address: "",
+  phone: "",
+  email: "",
+  instagram: "",
+  facebook: "",
+  whatsapp: "",
+};
+
+const defaultConfig = {
+  ...defaultBusiness,
+  theme: defaultTheme,
 };
 
 export const useConfigStore = create((set) => ({
@@ -18,6 +41,16 @@ export const useConfigStore = create((set) => ({
   setField: (field, value) =>
     set((state) => ({
       form: { ...state.form, [field]: value },
+    })),
+  setThemeField: (field, value) =>
+    set((state) => ({
+      form: {
+        ...state.form,
+        theme: {
+          ...state.form.theme,
+          [field]: value,
+        },
+      },
     })),
 
   resetForm: () =>

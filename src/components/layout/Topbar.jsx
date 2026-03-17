@@ -13,7 +13,7 @@ export default function Topbar() {
   });
 
   return (
-    <header className="sticky top-0 z-10 px-6 py-4 border-b border-dinamita-line bg-dinamita-panel/85 backdrop-blur">
+    <header className="sticky top-0 z-10 px-6 py-4 border-b backdrop-blur" style={{ borderColor: "var(--border-color)", background: "rgba(18,21,33,.85)" }}>
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-[.22em] text-dinamita-muted">
