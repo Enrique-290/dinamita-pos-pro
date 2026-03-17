@@ -73,6 +73,7 @@ export const useAccessStore = create((set, get) => ({
       const matchesSearch =
         !q ||
         log.clientName.toLowerCase().includes(q) ||
+        String(log.phone || "").toLowerCase().includes(q) ||
         String(log.reason || "").toLowerCase().includes(q) ||
         String(log.membershipType || "").toLowerCase().includes(q);
 

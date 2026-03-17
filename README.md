@@ -1,8 +1,8 @@
-# Dinamita POS Pro v32
+# Dinamita POS Pro v33
 
-## Clientes mejorado
-- id único por cliente
-- foto del cliente
-- carga desde dispositivo
-- listado con id y foto
-- búsqueda por id, nombre, teléfono o correo
+## Acceso mejorado
+- super buscador por nombre o id único
+- búsqueda por coincidencia parcial
+- sugerencias visuales con foto
+- selección rápida de cliente
+- estructura lista para lector de código USB HID
