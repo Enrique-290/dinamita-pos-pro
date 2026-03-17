@@ -21,7 +21,7 @@ export const usePersistenceStore = create((set, get) => ({
 
   hydrateAll: async () => {
     set({ loading: true });
-    const [sales, memberships, cashEvents, lastTicket, cajaSessions, cajaCurrent, products, inventoryCategories, clients, expenses, config, bodegaMoves, accessLogs, membershipPlans] = await Promise.all([
+    const [sales, memberships, cashEvents, lastTicket, cajaSessions, cajaCurrent, products, inventoryCategories, clients, expenses, config, bodegaMoves, bodegaItems, accessLogs, membershipPlans] = await Promise.all([
       kvGet("app_sales", []),
       kvGet("app_memberships", []),
       kvGet("app_cash_events", []),
@@ -34,6 +34,7 @@ export const usePersistenceStore = create((set, get) => ({
       kvGet("expenses_rows", null),
       kvGet("app_config", null),
       kvGet("bodega_moves", null),
+      kvGet("bodega_items", null),
       kvGet("access_logs", null),
       kvGet("membership_plans", null),
     ]);
@@ -80,6 +81,10 @@ export const usePersistenceStore = create((set, get) => ({
       useBodegaStore.setState({ moves: bodegaMoves });
     }
 
+    if (Array.isArray(bodegaItems) && bodegaItems.length) {
+      useBodegaStore.setState({ warehouseItems: bodegaItems });
+    }
+
     if (Array.isArray(accessLogs) && accessLogs.length) {
       useAccessStore.setState({ logs: accessLogs });
     }
@@ -117,6 +122,7 @@ export const usePersistenceStore = create((set, get) => ({
       kvSet("expenses_rows", expensesStore.expenses),
       kvSet("app_config", configStore.config),
       kvSet("bodega_moves", bodegaStore.moves),
+      kvSet("bodega_items", bodegaStore.warehouseItems),
       kvSet("access_logs", accessStore.logs),
       kvSet("membership_plans", membershipsStore.plans),
     ]);

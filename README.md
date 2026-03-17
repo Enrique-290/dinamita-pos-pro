@@ -1,12 +1,9 @@
-# Dinamita POS Pro v30
+# Dinamita POS Pro v31
 
-## Inventario Pro
-- subir imagen desde dispositivo
-- miniatura en listado
-- stock mínimo
-- caducidad
-- lote
-- categorías dinámicas
-- administrador de categorías
-- botón rápido para agregar stock
-- ventas ya usa categorías dinámicas
+## Bodega resguardo real
+- bodega separada de inventario
+- alta de producto a bodega
+- stock resguardado en bodega
+- traspaso manual a inventario
+- historial de movimientos
+- ya no suma a inventario en automático

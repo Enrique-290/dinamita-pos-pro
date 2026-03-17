@@ -3,88 +3,199 @@ import { useInventoryStore } from "./inventoryStore";
 
 const today = new Date().toISOString().slice(0, 10);
 
-const emptyForm = {
-  date: today,
-  productId: "",
-  type: "Entrada",
+const emptyWarehouseForm = {
+  name: "",
+  description: "",
+  image: "",
+  category: "General",
+  barcode: "",
+  cost: "",
+  price: "",
+  qty: "",
+  minStock: "",
+  expiryDate: "",
+  lot: "",
+};
+
+const emptyTransferForm = {
+  warehouseId: "",
   qty: "",
   reason: "",
-  note: "",
 };
 
 export const useBodegaStore = create((set, get) => ({
+  warehouseItems: [],
   moves: [],
-  form: emptyForm,
+  warehouseForm: emptyWarehouseForm,
+  transferForm: emptyTransferForm,
   query: "",
-  typeFilter: "Todos",
+  moveFilter: "Todos",
   message: "",
 
+  setWarehouseItems: (warehouseItems) => set({ warehouseItems: Array.isArray(warehouseItems) ? warehouseItems : [] }),
   setMoves: (moves) => set({ moves: Array.isArray(moves) ? moves : [] }),
-  setField: (field, value) => set((state) => ({ form: { ...state.form, [field]: value } })),
+  setWarehouseField: (field, value) => set((state) => ({ warehouseForm: { ...state.warehouseForm, [field]: value } })),
+  setTransferField: (field, value) => set((state) => ({ transferForm: { ...state.transferForm, [field]: value } })),
   setQuery: (query) => set({ query }),
-  setTypeFilter: (typeFilter) => set({ typeFilter }),
+  setMoveFilter: (moveFilter) => set({ moveFilter }),
 
-  resetForm: () => set({ form: emptyForm, message: "Formulario limpio." }),
+  resetWarehouseForm: () => set({ warehouseForm: emptyWarehouseForm }),
+  resetTransferForm: () => set({ transferForm: emptyTransferForm }),
 
-  saveMove: () => {
+  addToWarehouse: () => {
     const state = get();
-    const inventory = useInventoryStore.getState();
-    const product = inventory.products.find((p) => String(p.id) === String(state.form.productId));
+    const form = state.warehouseForm;
+    const qty = Number(form.qty || 0);
 
-    if (!product) {
-      set({ message: "Selecciona un producto válido." });
+    if (!String(form.name || "").trim()) {
+      set({ message: "Escribe el nombre del producto para bodega." });
       return null;
     }
-
-    const qty = Number(state.form.qty || 0);
     if (qty <= 0) {
-      set({ message: "La cantidad debe ser mayor a 0." });
+      set({ message: "La cantidad inicial en bodega debe ser mayor a 0." });
       return null;
     }
 
-    const move = {
-      id: `BDG-${Date.now()}`,
-      date: state.form.date || today,
-      productId: product.id,
-      productName: product.name,
-      type: state.form.type,
+    const item = {
+      id: `BDG-P-${Date.now()}`,
+      name: String(form.name).trim(),
+      description: String(form.description || "").trim(),
+      image: String(form.image || "").trim(),
+      category: String(form.category || "General").trim(),
+      barcode: String(form.barcode || "").trim(),
+      cost: Number(form.cost || 0),
+      price: Number(form.price || 0),
       qty,
-      reason: state.form.reason || "",
-      note: state.form.note || "",
+      minStock: Number(form.minStock || 0),
+      expiryDate: String(form.expiryDate || ""),
+      lot: String(form.lot || "").trim(),
+      createdAt: new Date().toISOString(),
     };
 
-    let nextStock = Number(product.stock || 0);
-    if (move.type === "Entrada") nextStock += qty;
-    if (move.type === "Salida") nextStock = Math.max(0, nextStock - qty);
-    if (move.type === "Ajuste") nextStock = qty;
-
-    useInventoryStore.setState((inv) => ({
-      ...inv,
-      products: inv.products.map((p) =>
-        p.id === product.id ? { ...p, stock: nextStock } : p
-      ),
-    }));
+    const move = {
+      id: `BDG-M-${Date.now()}`,
+      date: today,
+      type: "Entrada a bodega",
+      productName: item.name,
+      qty,
+      reason: "Alta inicial en bodega",
+      note: item.lot || "",
+    };
 
     set((state) => ({
+      warehouseItems: [item, ...state.warehouseItems],
       moves: [move, ...state.moves],
-      form: emptyForm,
-      message: `Movimiento registrado para ${product.name}.`,
+      warehouseForm: emptyWarehouseForm,
+      message: "Producto resguardado en bodega.",
+    }));
+
+    return item;
+  },
+
+  transferToInventory: () => {
+    const state = get();
+    const warehouseId = state.transferForm.warehouseId;
+    const qty = Number(state.transferForm.qty || 0);
+    const reason = String(state.transferForm.reason || "").trim();
+
+    const item = state.warehouseItems.find((w) => String(w.id) === String(warehouseId));
+    if (!item) {
+      set({ message: "Selecciona un producto de bodega." });
+      return null;
+    }
+    if (qty <= 0) {
+      set({ message: "La cantidad a transferir debe ser mayor a 0." });
+      return null;
+    }
+    if (qty > Number(item.qty || 0)) {
+      set({ message: "No hay suficiente stock en bodega para transferir." });
+      return null;
+    }
+
+    useInventoryStore.getState().receiveFromWarehouse(item, qty);
+
+    const move = {
+      id: `BDG-T-${Date.now()}`,
+      date: today,
+      type: "Traspaso a inventario",
+      productName: item.name,
+      qty,
+      reason: reason || "Surtido manual a inventario",
+      note: item.lot || "",
+    };
+
+    set((state) => ({
+      warehouseItems: state.warehouseItems
+        .map((w) =>
+          w.id === item.id ? { ...w, qty: Number(w.qty || 0) - qty } : w
+        )
+        .filter((w) => Number(w.qty || 0) > 0),
+      moves: [move, ...state.moves],
+      transferForm: emptyTransferForm,
+      message: "Producto enviado manualmente a inventario.",
     }));
 
     return move;
   },
 
+  removeFromWarehouse: (warehouseId, qty, reason = "Salida de bodega") => {
+    const state = get();
+    const item = state.warehouseItems.find((w) => String(w.id) === String(warehouseId));
+    const amount = Number(qty || 0);
+
+    if (!item || amount <= 0 || amount > Number(item.qty || 0)) {
+      set({ message: "No se pudo registrar la salida de bodega." });
+      return null;
+    }
+
+    const move = {
+      id: `BDG-S-${Date.now()}`,
+      date: today,
+      type: "Salida de bodega",
+      productName: item.name,
+      qty: amount,
+      reason,
+      note: item.lot || "",
+    };
+
+    set((state) => ({
+      warehouseItems: state.warehouseItems
+        .map((w) =>
+          w.id === item.id ? { ...w, qty: Number(w.qty || 0) - amount } : w
+        )
+        .filter((w) => Number(w.qty || 0) > 0),
+      moves: [move, ...state.moves],
+      message: "Salida registrada desde bodega.",
+    }));
+
+    return move;
+  },
+
+  getFilteredWarehouseItems: () => {
+    const { warehouseItems, query } = get();
+    const q = String(query || "").toLowerCase().trim();
+    return warehouseItems.filter((item) => {
+      return (
+        !q ||
+        item.name.toLowerCase().includes(q) ||
+        String(item.category || "").toLowerCase().includes(q) ||
+        String(item.lot || "").toLowerCase().includes(q) ||
+        String(item.barcode || "").toLowerCase().includes(q)
+      );
+    });
+  },
+
   getFilteredMoves: () => {
-    const { moves, query, typeFilter } = get();
+    const { moves, query, moveFilter } = get();
+    const q = String(query || "").toLowerCase().trim();
     return moves.filter((move) => {
-      const q = String(query || "").toLowerCase();
       const matchesQuery =
         !q ||
         move.productName.toLowerCase().includes(q) ||
-        move.reason.toLowerCase().includes(q) ||
-        move.note.toLowerCase().includes(q);
+        String(move.reason || "").toLowerCase().includes(q) ||
+        String(move.note || "").toLowerCase().includes(q);
 
-      const matchesType = typeFilter === "Todos" || move.type === typeFilter;
+      const matchesType = moveFilter === "Todos" || move.type === moveFilter;
       return matchesQuery && matchesType;
     });
   },

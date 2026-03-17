@@ -210,6 +210,42 @@ export const useInventoryStore = create((set, get) => ({
         return { ...product, stock: Math.max(0, Number(product.stock || 0) - Number(sold.qty || 0)) };
       }),
     })),
+  receiveFromWarehouse: (warehouseItem, qty) =>
+    set((state) => {
+      const amount = Number(qty || 0);
+      if (!warehouseItem || amount <= 0) return state;
+
+      const existing = state.products.find((p) => String(p.name).toLowerCase() === String(warehouseItem.name).toLowerCase());
+
+      if (existing) {
+        return {
+          products: state.products.map((p) =>
+            p.id === existing.id ? { ...p, stock: Number(p.stock || 0) + amount } : p
+          ),
+        };
+      }
+
+      const payload = {
+        id: Date.now(),
+        name: warehouseItem.name,
+        description: warehouseItem.description || "",
+        image: warehouseItem.image || "",
+        category: warehouseItem.category || (state.categories[0] || "General"),
+        barcode: warehouseItem.barcode || "",
+        cost: Number(warehouseItem.cost || 0),
+        price: Number(warehouseItem.price || 0),
+        stock: amount,
+        minStock: Number(warehouseItem.minStock || 0),
+        expiryDate: warehouseItem.expiryDate || "",
+        lot: warehouseItem.lot || "",
+        active: true,
+      };
+
+      return {
+        products: [payload, ...state.products],
+      };
+    }),
+
 
   addStockToProduct: () => {
     const state = get();
