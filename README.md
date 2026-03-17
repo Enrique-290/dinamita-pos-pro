@@ -1,3 +1,7 @@
-# Dinamita POS Pro v27
+# Dinamita POS Pro - Reportes v23
 
-Caja con layout corregido y mejor distribución visual.
+- números ajustados dentro de contenedores
+- exportar Excel activo
+- exportar PDF activo
+- ventas desglosadas por ticket y producto
+- filtros por fecha, producto, categoría, tipo y pago
