@@ -6,7 +6,7 @@ import { useAppDataStore } from "../../store/appDataStore";
 function ResponsiveValue({ value, tone = "" }) {
   return (
     <span
-      className={`block min-w-0 max-w-full break-words text-left leading-tight font-black text-[clamp(10px,1.5vw,18px)] ${tone}`}
+      className={`block min-w-0 max-w-full break-words text-left leading-tight font-black text-[clamp(12px,1.8vw,22px)] ${tone}`}
       title={value}
     >
       {value}
@@ -37,7 +37,7 @@ export default function Caja() {
   return (
     <div className="p-6 grid grid-cols-1 xl:grid-cols-[.95fr_1.15fr] gap-6">
       <section className="rounded-3xl border border-dinamita-line bg-dinamita-panel p-6 shadow-soft">
-        <h3 className="text-xl font-black mb-5">Caja</h3>
+        <h3 className="text-3xl font-black mb-5">Caja</h3>
 
         <div className="space-y-4">
           <input
@@ -132,7 +132,7 @@ export default function Caja() {
 
         <div className="rounded-3xl border border-dinamita-line bg-dinamita-panel p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">Resumen de caja</h3>
+            <h3 className="text-2xl font-bold">Resumen de caja</h3>
             <span className="text-sm text-dinamita-muted">Valores responsivos</span>
           </div>
 
@@ -161,7 +161,7 @@ export default function Caja() {
 
         <div className="rounded-3xl border border-dinamita-line bg-dinamita-panel p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">Historial de caja</h3>
+            <h3 className="text-2xl font-bold">Historial de caja</h3>
             <span className="text-sm text-dinamita-muted">Sesiones recientes</span>
           </div>
 
