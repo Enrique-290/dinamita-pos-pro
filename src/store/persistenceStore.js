@@ -21,7 +21,7 @@ export const usePersistenceStore = create((set, get) => ({
 
   hydrateAll: async () => {
     set({ loading: true });
-    const [sales, memberships, cashEvents, lastTicket, cajaSessions, cajaCurrent, products, clients, expenses, config, bodegaMoves, accessLogs, membershipPlans] = await Promise.all([
+    const [sales, memberships, cashEvents, lastTicket, cajaSessions, cajaCurrent, products, inventoryCategories, clients, expenses, config, bodegaMoves, accessLogs, membershipPlans] = await Promise.all([
       kvGet("app_sales", []),
       kvGet("app_memberships", []),
       kvGet("app_cash_events", []),
@@ -29,6 +29,7 @@ export const usePersistenceStore = create((set, get) => ({
       kvGet("caja_sessions", null),
       kvGet("caja_current", null),
       kvGet("inventory_products", null),
+      kvGet("inventory_categories", null),
       kvGet("clients_rows", null),
       kvGet("expenses_rows", null),
       kvGet("app_config", null),
@@ -57,6 +58,10 @@ export const usePersistenceStore = create((set, get) => ({
 
     if (Array.isArray(products) && products.length) {
       useInventoryStore.setState({ products });
+    }
+
+    if (Array.isArray(inventoryCategories) && inventoryCategories.length) {
+      useInventoryStore.setState({ categories: inventoryCategories });
     }
 
     if (Array.isArray(clients) && clients.length) {
@@ -107,6 +112,7 @@ export const usePersistenceStore = create((set, get) => ({
       kvSet("caja_sessions", caja.sessions),
       kvSet("caja_current", caja.currentSession),
       kvSet("inventory_products", inventory.products),
+      kvSet("inventory_categories", inventory.categories),
       kvSet("clients_rows", clientsStore.clients),
       kvSet("expenses_rows", expensesStore.expenses),
       kvSet("app_config", configStore.config),

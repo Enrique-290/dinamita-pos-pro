@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+const seedCategories = ["Suplementos", "Bebidas", "Accesorios"];
+
 const seedProducts = [
   {
     id: 1,
@@ -9,6 +11,9 @@ const seedProducts = [
     price: 500,
     cost: 320,
     stock: 20,
+    minStock: 5,
+    expiryDate: "",
+    lot: "LOTE-001",
     category: "Suplementos",
     barcode: "75010001",
     active: true,
@@ -21,6 +26,9 @@ const seedProducts = [
     price: 850,
     cost: 610,
     stock: 12,
+    minStock: 4,
+    expiryDate: "",
+    lot: "LOTE-002",
     category: "Suplementos",
     barcode: "75010002",
     active: true,
@@ -33,6 +41,9 @@ const seedProducts = [
     price: 15,
     cost: 8,
     stock: 30,
+    minStock: 10,
+    expiryDate: "",
+    lot: "LOTE-003",
     category: "Bebidas",
     barcode: "75010003",
     active: true,
@@ -45,6 +56,9 @@ const seedProducts = [
     price: 30,
     cost: 18,
     stock: 25,
+    minStock: 8,
+    expiryDate: "",
+    lot: "LOTE-004",
     category: "Bebidas",
     barcode: "75010004",
     active: true,
@@ -57,6 +71,9 @@ const seedProducts = [
     price: 290,
     cost: 180,
     stock: 10,
+    minStock: 3,
+    expiryDate: "",
+    lot: "LOTE-005",
     category: "Accesorios",
     barcode: "75010005",
     active: true,
@@ -69,6 +86,9 @@ const seedProducts = [
     price: 180,
     cost: 95,
     stock: 14,
+    minStock: 4,
+    expiryDate: "",
+    lot: "LOTE-006",
     category: "Accesorios",
     barcode: "75010006",
     active: true,
@@ -85,20 +105,36 @@ const emptyForm = {
   cost: "",
   price: "",
   stock: "",
+  minStock: "",
+  expiryDate: "",
+  lot: "",
   active: true,
+};
+
+const emptyCategoryForm = {
+  index: null,
+  name: "",
 };
 
 export const useInventoryStore = create((set, get) => ({
   products: seedProducts,
+  categories: seedCategories,
   form: emptyForm,
+  categoryForm: emptyCategoryForm,
   query: "",
   categoryFilter: "Todos",
+  stockAddQty: "",
+  stockAddProductId: null,
   message: "",
+  isCategoryManagerOpen: false,
 
   setProducts: (products) => set({ products: Array.isArray(products) ? products : [] }),
+  setCategories: (categories) => set({ categories: Array.isArray(categories) && categories.length ? categories : seedCategories }),
   setField: (field, value) => set((state) => ({ form: { ...state.form, [field]: value } })),
   setQuery: (query) => set({ query }),
   setCategoryFilter: (categoryFilter) => set({ categoryFilter }),
+  setStockAddQty: (stockAddQty) => set({ stockAddQty }),
+  setStockAddProductId: (stockAddProductId) => set({ stockAddProductId }),
 
   editProduct: (product) => set({
     form: {
@@ -111,6 +147,9 @@ export const useInventoryStore = create((set, get) => ({
       cost: product.cost ?? "",
       price: product.price ?? "",
       stock: product.stock ?? "",
+      minStock: product.minStock ?? "",
+      expiryDate: product.expiryDate || "",
+      lot: product.lot || "",
       active: !!product.active,
     },
     message: `Editando ${product.name}`,
@@ -136,6 +175,9 @@ export const useInventoryStore = create((set, get) => ({
       cost: Number(form.cost || 0),
       price: Number(form.price || 0),
       stock: Number(form.stock || 0),
+      minStock: Number(form.minStock || 0),
+      expiryDate: String(form.expiryDate || ""),
+      lot: String(form.lot || "").trim(),
       active: !!form.active,
     };
 
@@ -169,6 +211,89 @@ export const useInventoryStore = create((set, get) => ({
       }),
     })),
 
+  addStockToProduct: () => {
+    const state = get();
+    const qty = Number(state.stockAddQty || 0);
+    if (!state.stockAddProductId) {
+      set({ message: "Selecciona un producto para agregar stock." });
+      return null;
+    }
+    if (qty <= 0) {
+      set({ message: "La cantidad debe ser mayor a 0." });
+      return null;
+    }
+
+    const products = state.products.map((product) =>
+      product.id === state.stockAddProductId
+        ? { ...product, stock: Number(product.stock || 0) + qty }
+        : product
+    );
+
+    set({
+      products,
+      stockAddQty: "",
+      stockAddProductId: null,
+      message: "Stock agregado correctamente.",
+    });
+    return true;
+  },
+
+  openCategoryManager: () => set({ isCategoryManagerOpen: true }),
+  closeCategoryManager: () => set({ isCategoryManagerOpen: false, categoryForm: emptyCategoryForm }),
+  setCategoryFormField: (field, value) =>
+    set((state) => ({ categoryForm: { ...state.categoryForm, [field]: value } })),
+  editCategory: (index, name) => set({ categoryForm: { index, name }, isCategoryManagerOpen: true }),
+  resetCategoryForm: () => set({ categoryForm: emptyCategoryForm }),
+
+  saveCategory: () => {
+    const state = get();
+    const name = String(state.categoryForm.name || "").trim();
+    if (!name) {
+      set({ message: "Escribe el nombre de la categoría." });
+      return null;
+    }
+
+    let categories = [...state.categories];
+    const existsName = categories.some((c, idx) => c.toLowerCase() === name.toLowerCase() && idx !== state.categoryForm.index);
+    if (existsName) {
+      set({ message: "Esa categoría ya existe." });
+      return null;
+    }
+
+    if (state.categoryForm.index === null || state.categoryForm.index === undefined) {
+      categories.push(name);
+      set({ categories, categoryForm: emptyCategoryForm, isCategoryManagerOpen: true, message: "Categoría agregada." });
+    } else {
+      const previous = categories[state.categoryForm.index];
+      categories[state.categoryForm.index] = name;
+      const products = state.products.map((p) => (p.category === previous ? { ...p, category: name } : p));
+      set({
+        categories,
+        products,
+        categoryForm: emptyCategoryForm,
+        isCategoryManagerOpen: true,
+        message: "Categoría actualizada.",
+      });
+    }
+    return true;
+  },
+
+  deleteCategory: (index) =>
+    set((state) => {
+      const categoryName = state.categories[index];
+      const categories = state.categories.filter((_, idx) => idx !== index);
+      const fallback = categories[0] || "General";
+      const products = state.products.map((p) =>
+        p.category === categoryName ? { ...p, category: fallback } : p
+      );
+      return {
+        categories: categories.length ? categories : [fallback],
+        products,
+        message: "Categoría eliminada.",
+        categoryForm: emptyCategoryForm,
+      };
+    }),
+
   getFilteredProducts: () => {
     const { products, query, categoryFilter } = get();
     return products.filter((product) => {
@@ -176,7 +301,8 @@ export const useInventoryStore = create((set, get) => ({
         !query ||
         product.name.toLowerCase().includes(query.toLowerCase()) ||
         String(product.barcode || "").toLowerCase().includes(query.toLowerCase()) ||
-        String(product.description || "").toLowerCase().includes(query.toLowerCase());
+        String(product.description || "").toLowerCase().includes(query.toLowerCase()) ||
+        String(product.lot || "").toLowerCase().includes(query.toLowerCase());
 
       const matchesCategory = categoryFilter === "Todos" || product.category === categoryFilter;
       return matchesQuery && matchesCategory;

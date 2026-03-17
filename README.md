@@ -1,7 +1,12 @@
-# Dinamita POS Pro - Reportes v23
+# Dinamita POS Pro v30
 
-- números ajustados dentro de contenedores
-- exportar Excel activo
-- exportar PDF activo
-- ventas desglosadas por ticket y producto
-- filtros por fecha, producto, categoría, tipo y pago
+## Inventario Pro
+- subir imagen desde dispositivo
+- miniatura en listado
+- stock mínimo
+- caducidad
+- lote
+- categorías dinámicas
+- administrador de categorías
+- botón rápido para agregar stock
+- ventas ya usa categorías dinámicas

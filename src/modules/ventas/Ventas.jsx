@@ -6,11 +6,12 @@ import { useInventoryStore } from "../../store/inventoryStore";
 import { useClientsStore } from "../../store/clientsStore";
 import { useAppDataStore } from "../../store/appDataStore";
 
-const categories = ["Todos", "Suplementos", "Bebidas", "Accesorios"];
+
 const placeholderImage = "https://via.placeholder.com/300x220?text=Producto";
 
 export default function Ventas() {
   const inventoryProducts = useInventoryStore((s) => s.products);
+  const categories = ["Todos", ...useInventoryStore((s) => s.categories || [])];
   const clients = useClientsStore((s) => s.clients).filter((c) => c.active !== false);
   const lastTicket = useAppDataStore((s) => s.lastTicket);
 
