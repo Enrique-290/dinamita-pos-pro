@@ -1,9 +1,8 @@
-# Dinamita POS Pro v31
+# Dinamita POS Pro v32
 
-## Bodega resguardo real
-- bodega separada de inventario
-- alta de producto a bodega
-- stock resguardado en bodega
-- traspaso manual a inventario
-- historial de movimientos
-- ya no suma a inventario en automático
+## Clientes mejorado
+- id único por cliente
+- foto del cliente
+- carga desde dispositivo
+- listado con id y foto
+- búsqueda por id, nombre, teléfono o correo
